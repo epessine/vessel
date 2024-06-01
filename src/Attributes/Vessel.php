@@ -26,6 +26,15 @@ class Vessel extends Attribute
 
     public function boot(): void
     {
+        $class = $this->getVesselClass();
+
+        if (! is_a($class, BaseVessel::class, true)) {
+            throw new BadVesselMethodException(
+                $this->component->getName(),
+                $this->getName(),
+            );
+        }
+
         off('__get', $this->handleMagicGet(...));
         on('__get', $this->handleMagicGet(...));
 
@@ -50,7 +59,7 @@ class Vessel extends Attribute
                     });
                 });
             </script>
-        HTML, $this->getVesselClass().'-'.$contextId);
+        HTML, $class.'-'.$contextId);
     }
 
     /**
@@ -114,16 +123,7 @@ class Vessel extends Attribute
 
     protected function getVessel(): object
     {
-        $class = $this->getVesselClass();
-
-        if (! is_a($class, BaseVessel::class, true)) {
-            throw new BadVesselMethodException(
-                $this->component->getName(),
-                $this->getName(),
-            );
-        }
-
-        return new $class($this->component);
+        return new ($this->getVesselClass())($this->component);
     }
 
     public function getName(): string
