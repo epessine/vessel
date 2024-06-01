@@ -13,15 +13,15 @@ class VesselManager
 
     public static function getContextId(): string
     {
-        if (isset(self::$contextId)) {
-            return self::$contextId;
-        }
-
         /** @var Request $request */
         $request = request();
-        /** @var string $contextId */
-        $contextId = $request->header(self::CONTEXT_HEADER, Str::random(20));
+        /** @var ?string $contextId */
+        $contextId = $request->header(self::CONTEXT_HEADER);
 
-        return self::$contextId = $contextId;
+        if ($contextId !== null) {
+            return $contextId;
+        }
+
+        return self::$contextId ??= Str::random(20);
     }
 }
