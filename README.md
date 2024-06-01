@@ -1,3 +1,14 @@
+<p align="center">
+    <p align="center">
+        <a href="https://github.com/epessine/vessel/actions"><img alt="GitHub Workflow Status (main)" src="https://github.com/epessine/vessel/actions/workflows/tests.yml/badge.svg"></a>
+        <a href="https://packagist.org/packages/epessine/vessel"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/epessine/vessel"></a>
+        <a href="https://packagist.org/packages/epessine/vessel"><img alt="Latest Version" src="https://img.shields.io/packagist/v/epessine/vessel"></a>
+        <a href="https://packagist.org/packages/epessine/vessel"><img alt="License" src="https://img.shields.io/packagist/l/epessine/vessel"></a>
+    </p>
+</p>
+
+------
+
 # Vessel - global state for Livewire
 
 Vessel provides a global state for [Livewire](https://livewire.laravel.com), allowing multiple components to share state without a multitude of events to handle interaction.
