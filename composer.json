@@ -17,16 +17,17 @@
         }
     ],
     "require": {
-        "php": "^8.2.0",
+        "php": "^8.2|^8.3",
         "livewire/livewire": "^3.0"
     },
     "require-dev": {
         "laravel/pint": "^1.15",
         "orchestra/testbench": "^9.0",
         "pestphp/pest": "^2.34",
-        "phpstan/phpstan": "^1.11",
-        "rector/rector": "^1.1",
-        "symfony/var-dumper": "^6.4.0|^7.0.0"
+        "pestphp/pest-plugin-laravel": "^2.4",
+        "pestphp/pest-plugin-livewire": "^2.1",
+        "phpstan/phpstan": "^1.10.34",
+        "rector/rector": "^1.1"
     },
     "autoload": {
         "psr-4": {
