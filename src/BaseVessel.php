@@ -41,8 +41,12 @@ abstract class BaseVessel
         }
     }
 
-    public function __get(string $name): mixed
+    public function &__get(string $name): mixed
     {
+        if (isset($this->$name)) {
+            return $this->$name;
+        }
+
         /** @var array<string, mixed> $values */
         $values = Cache::get($this->generateKey());
 
@@ -93,8 +97,7 @@ abstract class BaseVessel
      */
     private function toArray(): array
     {
-        return collect((new ReflectionClass($this))
-            ->getProperties(ReflectionProperty::IS_PUBLIC))
+        return collect(static::getPublicProperties())
             ->mapWithKeys(fn (ReflectionProperty $prop): array => [
                 $prop->getName() => $prop->getValue($this),
             ])
