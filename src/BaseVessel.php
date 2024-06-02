@@ -48,7 +48,11 @@ abstract class BaseVessel
             return $this->$name;
         }
 
-        $values = $this->getCache();
+        $values = [];
+
+        Cache::lock($this->cacheKey, 5)->get(function () use (&$values): void {
+            $values = $this->getCache();
+        });
 
         return $values[$name];
     }
