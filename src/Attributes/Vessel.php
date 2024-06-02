@@ -8,6 +8,7 @@ use Livewire\Features\SupportAttributes\Attribute;
 use Vessel\BaseVessel;
 use Vessel\Exceptions\BadVesselMethodException;
 use Vessel\Exceptions\CannotCallVesselDirectlyException;
+use Vessel\Support\PropertyHelper;
 use Vessel\VesselManager;
 
 use function Livewire\invade;
@@ -72,21 +73,9 @@ class Vessel extends Attribute
 
         return collect($props)
             ->mapWithKeys(fn (\ReflectionProperty $prop): array => [
-                $this->getPropertyUpdatedEventName($prop) => $this->getPropertyUpdatedActionName($prop),
+                PropertyHelper::updatedEventName($prop->getName()) => $this->getPropertyUpdatedActionName($prop),
             ])
             ->all();
-    }
-
-    protected function getPropertyUpdatedEventName(\ReflectionProperty $prop): string
-    {
-        return Str::of($prop->getName())
-            ->prepend(
-                'vessel-',
-                VesselManager::getContextId(),
-                '-',
-            )
-            ->append('-updated')
-            ->toString();
     }
 
     protected function getPropertyUpdatedActionName(\ReflectionProperty $prop): string
@@ -109,6 +98,7 @@ class Vessel extends Attribute
         if ($target !== $this->component) {
             return;
         }
+
         if ($this->generatePropertyName($property) !== $this->getName()) {
             return;
         }

@@ -3,29 +3,30 @@
 namespace Vessel;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use ReflectionClass;
 use ReflectionProperty;
+use Vessel\Support\PropertyHelper;
+use Vessel\Support\VesselHelper;
 
 /**
  * @method void init()
  */
 abstract class BaseVessel
 {
-    private readonly string $id;
+    private readonly string $cacheKey;
 
     private int $lifetime;
 
     public function __construct(private readonly Component $component)
     {
-        $this->id = VesselManager::getContextId();
+        $this->cacheKey = VesselHelper::cacheKey($this);
 
         /** @var int $lifetime */
         $lifetime = config('session.lifetime');
 
         Cache::remember(
-            $this->generateKey(),
+            $this->cacheKey,
             $this->lifetime ??= $lifetime,
             function (): array {
                 if (method_exists($this, 'init')) {
@@ -47,41 +48,33 @@ abstract class BaseVessel
             return $this->$name;
         }
 
-        /** @var array<string, mixed> $values */
-        $values = Cache::get($this->generateKey());
+        $values = $this->getCache();
 
         return $values[$name];
     }
 
     public function __set(string $name, mixed $value): void
     {
+        Cache::lock($this->cacheKey, 5)->get(function () use ($name, $value): void {
+            $values = $this->getCache();
+
+            $values[$name] = $value;
+
+            Cache::set($this->cacheKey, $values, $this->lifetime);
+
+            $this->component->dispatch(PropertyHelper::updatedEventName($name), $value);
+        });
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getCache(): array
+    {
         /** @var array<string, mixed> $values */
-        $values = Cache::get($this->generateKey());
+        $values = Cache::get($this->cacheKey);
 
-        $values[$name] = $value;
-
-        Cache::set($this->generateKey(), $values, $this->lifetime);
-
-        $this->component->dispatch($this->getPropertyUpdatedEventName($name), $value);
-    }
-
-    private function getPropertyUpdatedEventName(string $name): string
-    {
-        return Str::of($name)
-            ->prepend(
-                'vessel-',
-                VesselManager::getContextId(),
-                '-',
-            )
-            ->append('-updated')
-            ->toString();
-    }
-
-    private function generateKey(): string
-    {
-        return Str::of('vessel_')
-            ->append(static::class, '_', $this->id)
-            ->toString();
+        return $values;
     }
 
     /**
