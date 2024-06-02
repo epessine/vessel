@@ -111,6 +111,39 @@ After calling `Filter::selectUserFilter()`, the `selectedUserType` will be updat
 
 All of that without a single event dispatch/listener!
 
+## Updated Hook
+
+You can use the `updated` lifecycle hook on Vessel properties the same way as Livewire properties. The updated method name should include the Vessel method name as well. Let's rewrite the example above:
+
+```php
+use Livewire\Component;
+use Vessel\Attributes\Vessel;
+
+/**
+ * @property-read FilterVessel globalFilters
+ */
+class UserList extends Component
+{
+    public array $users;
+
+    #[Vessel]
+    public function globalFilters(): string
+    {
+        return FilterVessel::class; // vessel class declared above
+    }
+
+    public function updatedGlobalFiltersSelectedUserType(string $value): void
+    {
+        // here we get the updated vessel property value
+        $this->users = User::query()->where('type', $value)->get()->all();
+    }
+
+    // ...
+}
+```
+
+This way, whenever the `$selectedUserType` property on the `FilterVessel` class is updated on any component that uses it, the `updatedGlobalFiltersSelectedUserType` method will be called.
+
 ## Troubleshooting
 
 There are some base rules when using Vessel:
